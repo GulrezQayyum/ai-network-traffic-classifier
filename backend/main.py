@@ -61,17 +61,17 @@ def setup_logging():
 api_logger, pred_logger = setup_logging()
 
 # ============================================================================
-# AUTHENTICATION (Bypassed if no API_KEY set)
+# AUTHENTICATION (disabled when API_KEY is unset — see config.py)
 # ============================================================================
 
-# async def verify_api_key(x_api_key: str = Header(None)):
-#     """Bypass authentication if API_KEY is not configured."""
-#     if not API_KEY:
-#         return x_api_key
-#     if not x_api_key or x_api_key != API_KEY:
-#         api_logger.warning(f"Invalid API key: {x_api_key[:10] if x_api_key else 'None'}...")
-#         raise HTTPException(status_code=403, detail="Invalid or missing API key")
-#     return x_api_key
+async def verify_api_key(x_api_key: str = Header(None)):
+    """Bypass authentication if API_KEY is not configured."""
+    if not API_KEY:
+        return x_api_key
+    if not x_api_key or x_api_key != API_KEY:
+        api_logger.warning(f"Invalid API key: {x_api_key[:10] if x_api_key else 'None'}...")
+        raise HTTPException(status_code=403, detail="Invalid or missing API key")
+    return x_api_key
 
 # CORS middleware
 app.add_middleware(
@@ -182,7 +182,7 @@ async def health_check():
         version="1.0.0"
     )
 
-@app.post("/predict", response_model=PredictionResponse)
+@app.post("/predict", response_model=PredictionResponse, dependencies=[Depends(verify_api_key)])
 async def predict(request: PredictionRequest):
     if not model_loaded or model is None:
         api_logger.error("Model not loaded")
