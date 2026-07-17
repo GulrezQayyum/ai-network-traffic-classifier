@@ -106,8 +106,10 @@ CORS_HEADERS = ["Content-Type", "Authorization"]
 # SECURITY SETTINGS
 # ============================================================================
 
-# API Key for authentication
-API_KEY = os.getenv("API_KEY", "dev-key-change-in-production")
+# API Key for authentication.
+# Leave unset/empty (the default) to DISABLE authentication — intended for local development.
+# Set API_KEY in your environment or .env file to enable X-API-Key enforcement.
+API_KEY = os.getenv("API_KEY", "")
 API_KEY_HEADER = "X-API-Key"
 
 # Allowed traffic classes for validation
